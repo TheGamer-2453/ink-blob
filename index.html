@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html>
-    <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Ink Blob in water </title>
+    <title>Sentient Inkblots</title>
     <link rel="stylesheet" href="blob.css">
-    </head>
-    <body>
-            <div id="ui">
-                <h1>ink blobs simulator</h1>
-                <p> Type anywhere on your keyboard. Hold keys for heavier ink drops. </p>
-            </div>
+</head>
+<body>
 
-            <canvas id="inkCanvas"></canvas>
+    <div id="overlay">
+        <div id="overlay-text">Click anywhere, then start typing!</div>
+    </div>
+    
+    <canvas id="inkCanvas" tabindex="0"></canvas>
 
-            <script src="blob.js"></script>
-    </body>
+    <script src="blob.js"></script>
+</body>
 </html>
-

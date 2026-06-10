@@ -1,8 +1,10 @@
 const canvas = document.getElementById('inkCanvas');
 const ctx = canvas.getContext('2d');
+const overlay = document.getElementById('overlay-text');
 
 let width, height;
 const blots = [];
+let hasStarted = false;
 
 function resize() {
     width = canvas.width = window.innerWidth;
@@ -12,38 +14,35 @@ window.addEventListener('resize', resize);
 resize();
 
 const palette = [
-    'rgba(20, 20, 40, 0.05)',   
-    'rgba(0, 100, 150, 0.05)', 
-    'rgba(120, 20, 60, 0.05)', 
+    'rgba(20, 20, 40, 0.05)',
+    'rgba(0, 100, 150, 0.05)',
+    'rgba(120, 20, 60, 0.05)',
     'rgba(40, 100, 40, 0.05)',
-    'rgba(90, 30, 120, 0.05)' 
+    'rgba(90, 30, 120, 0.05)'
 ];
 
 class InkBlot {
-    constructor(x, y, key, isRepeat){
+    constructor(x, y, charCode, isRepeat) {
         this.x = x;
         this.y = y;
 
-        const charCode = key.charCodeAt(0) || 0;
+        const  pressureMultiplier = isRepeat ? 2.5 : 1;
 
-        const pressureMultiplier = isRepeat ? 2.5 : 1;
-        
         this.color = palette[charCode % palette.length];
         this.baseRadius = (20 + (charCode % 40)) * pressureMultiplier;
-        this.numPoints = 8 + (charCode % 12);
+        this.numPoints = 8 + Math.floor(Math.random() * 13);
+
+        this.vx = (Math.random() - 0.5) * 3;
+        this.vy = (Math.random() - 0.5) * 3;
 
         this.points = [];
         this.timeOffset = Math.random() * 1000;
 
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-
-        for (let i = 0; i < this.numPoints; 1++) {
-            const angle = (i / this.numPoints) * Math.PI * 2;
+        for (let i = 0; i < this.numPoints; i++) { 
             this.points.push({
-                angle: angle,
+                angle: (i / this.numPoints) * Math.PI * 2,
                 speed: 0.02 + Math.random() * 0.03,
-                variance: 10 + Math.random() * 20  
+                variance: 10 + Math.random() * 20
             });
         }
     }
@@ -55,7 +54,7 @@ class InkBlot {
         ctx.fillStyle = this.color;
         ctx.beginPath();
 
-        for (let i = 0; i < this.numPoints; i++) {
+        for(let i = 0; i < this.numPoints; i++) {
             const p = this.points[i];
             const nextP = this.points[(i + 1) % this.numPoints];
 
@@ -71,9 +70,7 @@ class InkBlot {
             const cx = (px + nextPx) / 2;
             const cy = (py + nextPy) / 2;
 
-            if (i === 0) {
-                ctx.moveTo(px, py);
-            }
+            if (i === 0) ctx.moveTo(px, py);
             ctx.quadraticCurveTo(px, py, cx, cy);
         }
 
@@ -82,24 +79,48 @@ class InkBlot {
     }
 }
 
-window.addEventListener('keydown', (e) => {
+function spawnBlot(x, y, charCode, isRepeat) {
+    blots.push(new InkBlot(x, y, charCode, isRepeat));
+    if (blots.length > 60) blots.shift();
+}
+
+function hideOverlay() {
+    if (!hasStarted) {
+        hasStarted = true;
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 500);
+    }
+}
+
+document.addEventListener('click', () => {
+    canvas.focus();
+    hideOverlay();
+});
+
+document.addEventListener('keydown', (e) => {
+    hideOverlay();
+
     const spawnX = (width / 2) + (Math.random() - 0.5) * 300;
     const spawnY = (height / 2) + (Math.random() - 0.5) * 300;
+    const charCode = e.key.charCodeAt(0) || 0;
 
-    blots.push(new InkBlot(spawnX, spawnY, e.key, e.repeat));
-
-    if (blots.length > 60) blots.shift();
+    spawnBlot(spawnX, spawnY, charCode, e.repeat);
 });
+
+for(let i=0; i<3; i++) {
+    const x = (width / 2) + (Math.random() - 0.5) * 200;
+    const y = (height / 2) + (Math.random() - 0.5) * 200;
+    const fakeChareCode = Math.floor(Math.random() * 100);
+    spawnBlot(x, y, fakeChareCode, false);
+}
+
+canvas.focus();
 
 function animate(time) {
     ctx.clearRect(0, 0, width, height);
-
     ctx.globalCompositeOperation = 'multiply';
-
-    blots.forEach(blot => {
-        for(let i=0; i<3; i++) {
-            blot.updateAndDraw(ctx, time);
-        }
+    blots.forEach(blots => {
+        for(let i=0; 1<3; i++) blots.updateAndDraw(ctx, time);
     });
 
     ctx.globalCompositeOperation = 'source-over';

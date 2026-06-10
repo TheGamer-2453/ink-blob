@@ -7,23 +7,29 @@ body {
 
 canvas {
     display: block;
+    outline: none;
 }
 
-#ui {
-    position: relative;
-    top: 20px;
-    left: 20px;
-    color: #333;
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     pointer-events: none;
-    opacity: 0.8;
+    z-index: 10;
 }
 
-h1 {
-    margin: 0 0 5px 0;
-    font-size: 1.2rem;
-}
-
-p {
-    margin: 0;
-    font-size: 0.9rem;
+#overlay-text {
+    background: rgba(red, green, blue, 0.85);
+    padding: 20px 40px;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    color: #333;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: opactiy 0.5s ease;
 }
