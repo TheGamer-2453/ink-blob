@@ -22,25 +22,27 @@ const palette = [
 ];
 
 class InkBlot {
-    constructor(x, y, charCode, isrepeat) {
+    constructor(x, y, charCode, isRepeat) {
         this.x = x;
         this.y = y;
-
+        
         this.color = palette[charCode % palette.length];
-        this.baseRadius = (15 + (charCode % 30)) * (isrepeat ? 2 : 1);
-        this.numPoints = 8 + (charCode % 8);
-
-        this.vx = (Math.random() - 0.5) * 2;
-        this.vy = (Math.random() - 0.5) * 2;
-
+        
+        this.baseRadius = (15 + (charCode % 30)) * (isRepeat ? 2 : 1);
+        
+        this.numPoints = 8 + (charCode % 8); 
+        
+        this.vx = (Math.random() - 0.5) * 2; 
+        this.vy = (Math.random() - 0.5) * 2; 
+        
         this.points = [];
         this.timeOffset = Math.random() * 1000;
-
-        for(let i = 0; 1 < this.numPoints; i++){
+        
+        for (let i = 0; i < this.numPoints; i++) {
             this.points.push({
                 angle: (i / this.numPoints) * Math.PI * 2,
-                speed: 0.002 + Math.random() * 0.003,
-                variance: 5 + Math.random() * 15
+                speed: 0.002 + Math.random() * 0.003, 
+                variance: 5 + Math.random() * 15   
             });
         }
     }
@@ -80,45 +82,44 @@ class InkBlot {
     }
 }
 
-function spawnBlots(x, y, charCode, isrepeat) {
-    blots.push(new InkBlot(x, y, charCode, isrepeat));
-    if (blots.length > 40) blots.shift();
+function spawnBlot(x, y, charCode, isRepeat) {
+    blots.push(new InkBlot(x, y, charCode, isRepeat));
+    
+    if (blots.length > 1000) blots.shift();
+}
+
+function hideOverlay() {
+    if (!hasStarted) {
+        hasStarted = true;
+        overlay.style.opacity = '0';
+    }
 }
 
 document.addEventListener('click', () => {
     canvas.focus();
-    if (!hasStarted) {
-        hasStarted = true;
-        overlay.style.opacity = '0';
-    }
+    hideOverlay();
 });
 
 document.addEventListener('keydown', (e) => {
-    if (!hasStarted) {
-        hasStarted = true;
-        overlay.style.opacity = '0';
-    }
+    hideOverlay();
     
-    const spawnX = (width / 2) + (Math.random() - 0.5) * 200;
-    const spawnY = (height / 2) + (Math.random() - 0.5) * 200;
-    spawnBlot(spawnX, spawnY, e.key.charCodeAt(0) || 0, e.repeat);
+    const spawnX = (width / 2) + (Math.random() - 0.5) * 300;
+    const spawnY = (height / 2) + (Math.random() - 0.5) * 300;
+    const charCode = e.key.charCodeAt(0) || 0;
+    
+    spawnBlot(spawnX, spawnY, charCode, e.repeat);
 });
-
-for(let i=0; i<3; i++) {
-    spawnBlot(width/2 + Math.random()*100, height/2 + Math.random()*100, i*10, false);
-}
 
 function animate(time) {
     ctx.clearRect(0, 0, width, height);
 
     blots.forEach(blot => {
         blot.update(time); 
-        blot.draw(ctx);    
+        blot.draw(ctx);   
     });
 
     requestAnimationFrame(animate);
 }
-
 
 canvas.focus();
 requestAnimationFrame(animate);
